@@ -83,16 +83,6 @@ int nextPrime(int N)
 }
 
 int main() {
-	int my_rank, nproc, N_local;
-
-    MPI_Init(&argc, &argv);
-    MPI_Comm comm = MPI_COMM_WORLD;
-    MPI_Comm_size(comm, &nproc);
-    MPI_Comm_rank(comm, &my_rank);
-
-	ACO *LocalANTS = (ACO*)malloc(sizeof(ACO));
-
-	if(my_rank == 0){
 
 		ACO *ANTS = new ACO (NUMBEROFANTS, NUMBEROFCITIES, 
 							ALPHA, BETA, Q, RO, TAUMAX,
@@ -119,7 +109,6 @@ int main() {
 			y = (i%10) + i;
 			ANTS -> setCITYPOSITION (i,  x,  y);
 		}
-	}
 
 	cout<<"start calculations" << endl;
 	
@@ -132,13 +121,11 @@ int main() {
 
 	ANTS -> optimize (ITERATIONS);
 
-	if(my_rank == 0){
-
 		auto end = std::chrono::high_resolution_clock::now(); //end timer
 
 		ANTS -> printRESULTS ();
 		auto time_taken = duration_cast<milliseconds>(end - start);;
 		cout << "Time taken by program is : " << time_taken.count() << " ms " << endl;
-	}
+	
 	return 0;
 }
