@@ -296,68 +296,60 @@ void ACO::updatePHEROMONES () {
 }
 
 
-void ACO::optimize (int ITERATIONS, int my_rank) {
-
-    MPI_Comm comm = MPI_COMM_WORLD;
+void ACO::optimize (int ITERATIONS) {
 
 	for (int iterations=1; iterations<=ITERATIONS; iterations++) {
-		cout << flush;
-		cout << "ITERATION " << iterations << " HAS STARTED!" << endl << endl;
+		//cout << flush;
+		//cout << "ITERATION " << iterations << " HAS STARTED!" << endl << endl;
 
-		int i = 0;
-		//#pragma omp parallel for private(i)
-	
-		//cout << " : ant " << my_rank << " has been released!" << endl;
-		while (0 != valid(my_rank, iterations)) {
-			//cout << "  :: releasing ant " << k << " again!" << endl;
-			for (i=0; i<NUMBEROFCITIES; i++) {
-				ROUTES[my_rank][i] = -1;
+		for (int k = 0; k < NUMBEROFANTS; k++)
+		{
+			//cout << " : ant " << k << " has been released!" << endl;
+			while (0 != valid(k, iterations))
+			{
+			//	cout << "  :: releasing ant " << k << " again!" << endl;
+				for (int i = 0; i < NUMBEROFCITIES; i++)
+				{
+					ROUTES[k][i] = -1;
+				}
+				route(k);
 			}
-			route(k);
+
+			// for (int i = 0; i < NUMBEROFCITIES; i++)
+			// {
+			// 	cout << ROUTES[k][i] << " ";
+			// }
+			//cout << endl;
+
+			//cout << "  :: route done" << endl;
+			double rlength = length(k);
+
+			if (rlength < BESTLENGTH)
+			{
+				BESTLENGTH = rlength;
+				for (int i = 0; i < NUMBEROFCITIES; i++)
+				{
+					BESTROUTE[i] = ROUTES[k][i];
+				}
+			}
+			//cout << " : ant " << k << " has ended!" << endl;
 		}
 
-		//cout << "  :: before " << my_rank << " again!" << endl;
-		
-		// for (int i=0; i<NUMBEROFCITIES; i++) {
-		// 	cout << ROUTES[k][i] << " ";	
-		// }
-		//cout << endl;
-		
-		//cout << "  :: route done" << endl;
-		double rlength = length(my_rank);
+		// cout << endl
+		// 	 << "updating PHEROMONES . . .";
+		// updatePHEROMONES();
+		// cout << " done!" << endl
+		// 	 << endl;
+		// printPHEROMONES();
 
-		if (rlength < BESTLENGTH) {
-			/*
-				Insert logic to prevent race condition
-			*/
-			BESTLENGTH = rlength;
-			//#pragma omp parallel for
-			for (i=0; i<NUMBEROFCITIES; i++) {
-				BESTROUTE[i] = ROUTES[my_rank][i];
+		for (int i = 0; i < NUMBEROFANTS; i++)
+		{
+			for (int j = 0; j < NUMBEROFCITIES; j++)
+			{
+				ROUTES[i][j] = -1;
 			}
 		}
-		//cout << " : ant " << k << " has ended!" << endl;				
 		
-
-		/*
-			Send infomation back to 0	
-		*/
-
-		if(my_rank == 0){
-			//cout << endl << "updating PHEROMONES . . .";
-			updatePHEROMONES ();
-			//cout << " done!" << endl << endl;
-			//printPHEROMONES ();
-		}
-
-		/*
-			resend updated aco
-		*/
-		
-		for (int j=0; j<NUMBEROFCITIES; j++) {
-			ROUTES[my_rank][j] = -1;
-		}
-
 		cout << endl << "ITERATION " << iterations << " HAS ENDED!" << endl << endl;
 	}
 }

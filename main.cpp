@@ -130,9 +130,7 @@ int main() {
 
 	//ANTS -> printPHEROMONES ();
 
-	MPI_Bcast(&ANTS, 1, ACO, 0, comm);
-
-	ANTS -> optimize (ITERATIONS, my_rank);
+	ANTS -> optimize (ITERATIONS);
 
 	if(my_rank == 0){
 
