@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <bits/stdc++.h>
 
-#include "mpi.h"
+#include "omp.h"
 
 #include <cmath>
 #include <limits>
@@ -112,7 +112,7 @@ int main() {
 
 	cout<<"start calculations" << endl;
 	
-	// ANTS -> setCITYPOSITION(8, 26, 20);
+	ANTS -> setCITYPOSITION(8, 26, 20);
 	auto start = std::chrono::high_resolution_clock::now();//add start time
 
 	//ANTS -> printGRAPH ();

@@ -1,5 +1,5 @@
 #include "ACO.h"
-#include "mpi.h"
+#include "omp.h"
 
 #include <cstdio>
 #include <iostream>
@@ -337,7 +337,7 @@ void ACO::optimize (int ITERATIONS) {
 
 		// cout << endl
 		// 	 << "updating PHEROMONES . . .";
-		// updatePHEROMONES();
+		updatePHEROMONES();
 		// cout << " done!" << endl
 		// 	 << endl;
 		// printPHEROMONES();
