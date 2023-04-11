@@ -16,7 +16,7 @@ public:
 	void printGRAPH ();
 	void printRESULTS ();
 	
-	void optimize (int ITERATIONS);
+	void optimize (int ITERATIONS, int nThreads);
 
 private:
 	double distance (int cityi, int cityj);

@@ -21,4 +21,4 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 run:
-	./$(TARGET) 1
+	./$(TARGET) 20

@@ -82,50 +82,49 @@ int nextPrime(int N)
     return prime;
 }
 
-int main() {
+int main(int argc,char** argv) {
 
-		ACO *ANTS = new ACO (NUMBEROFANTS, NUMBEROFCITIES, 
+	int nThreads = strtol(argv[1],NULL,10);
+	
+
+	ACO *ANTS = new ACO (NUMBEROFANTS, NUMBEROFCITIES, 
 							ALPHA, BETA, Q, RO, TAUMAX,
 							INITIALCITY);
 
-		ANTS -> init();
+	ANTS -> init();
 		
-		cout<<"initialize connections" << endl;
+	cout<<"initialize connections" << endl;
 
-		//"randomize" connections of cities, give a seemingly random connection of cities using prime numbers
-		for(int i = 0; i < NUMBEROFCITIES - 1; i ++){
-			for(int j = i + 1; j <  NUMBEROFCITIES; j++){
-				if(j != i+1 || isPrime(j)){
-					ANTS -> connectCITIES (i, j);
-				}
+	//"randomize" connections of cities, give a seemingly random connection of cities using prime numbers
+	for(int i = 0; i < NUMBEROFCITIES - 1; i ++){
+		for(int j = i + 1; j <  NUMBEROFCITIES; j++){
+			if(j != i+1 || isPrime(j)){
+				ANTS -> connectCITIES (i, j);
 			}
 		}
-		cout<<"initialize cities" << endl;
+	}
+	cout<<"initialize cities" << endl;
 
-		//create a grid from the cities
-		for(int i = 0; i < NUMBEROFCITIES - 1; i ++){
-			int x, y = i+1;
-			x = (i%10)*5;
-			y = (i%10) + i;
-			ANTS -> setCITYPOSITION (i,  x,  y);
-		}
+	//create a grid from the cities
+	for(int i = 0; i < NUMBEROFCITIES - 1; i ++){
+		int x, y = i+1;
+		x = (i%10)*5;
+		y = (i%10) + i;
+		ANTS -> setCITYPOSITION (i,  x,  y);
+	}
 
 	cout<<"start calculations" << endl;
 	
-	ANTS -> setCITYPOSITION(8, 26, 20);
+	//ANTS -> setCITYPOSITION(8, 26, 20);
 	auto start = std::chrono::high_resolution_clock::now();//add start time
 
-	//ANTS -> printGRAPH ();
+	ANTS -> optimize (ITERATIONS,nThreads);
 
-	//ANTS -> printPHEROMONES ();
+	auto end = std::chrono::high_resolution_clock::now(); //end timer
 
-	ANTS -> optimize (ITERATIONS);
-
-		auto end = std::chrono::high_resolution_clock::now(); //end timer
-
-		ANTS -> printRESULTS ();
-		auto time_taken = duration_cast<milliseconds>(end - start);;
-		cout << "Time taken by program is : " << time_taken.count() << " ms " << endl;
+	ANTS -> printRESULTS ();
+	auto time_taken = duration_cast<milliseconds>(end - start);;
+	cout << "Time taken by program is : " << time_taken.count() << " ms " << endl;
 	
 	return 0;
 }
