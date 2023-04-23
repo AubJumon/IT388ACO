@@ -337,7 +337,7 @@ void ACO::optimize (int ITERATIONS) {
 
 		// cout << endl
 		// 	 << "updating PHEROMONES . . .";
-		// updatePHEROMONES();
+		updatePHEROMONES();
 		// cout << " done!" << endl
 		// 	 << endl;
 		// printPHEROMONES();
