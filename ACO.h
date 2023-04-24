@@ -1,4 +1,5 @@
 #include "Randoms.cpp"
+#include "mpi.h"
 
 class ACO {
 public:
@@ -17,6 +18,19 @@ public:
 	void printRESULTS ();
 	
 	void optimize (int ITERATIONS);
+	double length (int antk);
+
+	void setPHEROMONES(double **P);
+	double** getPHEROMONES();
+
+	void setDELTAPHEROMONES(double **P);
+	double** getDELTAPHEROMONES();
+
+	void setCITIES(double **P);
+	double** getCITIES();
+
+	void setGRAPH(int **P);
+	int** getGRAPH();
 
 private:
 	double distance (int cityi, int cityj);
@@ -24,13 +38,12 @@ private:
 	bool vizited (int antk, int c);
 	double PHI (int cityi, int cityj, int antk);
 	
-	double length (int antk);
 	
 	int city ();
 	void route (int antk);
 	int valid (int antk, int iteration);
 	
-	void updatePHEROMONES ();
+	void updatePHEROMONES (int* global_ROUTES);
 
 	
 	int NUMBEROFANTS, NUMBEROFCITIES, INITIALCITY;

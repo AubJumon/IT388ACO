@@ -1,7 +1,5 @@
 /*
-@author:	Diogo A. B. Fernandes
-@contact:	diogoabfernandes@gmail.com
-@license:	see LICENSE
+mpirun -np 5 ./aco
 */
 
 #include <iostream>
@@ -25,7 +23,7 @@ using std::chrono::high_resolution_clock;
 
 #define ITERATIONS		(int) 5
 
-#define NUMBEROFANTS	(int) 4 //this should be set to the number of threads you want to run with
+#define NUMBEROFANTS	(int) 5 //this should be set to the number of threads you want to run with
 #define NUMBEROFCITIES	(int) 100 //originally 8 create larger number to slow down program
 
 // if (ALPHA == 0) { stochastic search & sub-optimal route }
@@ -82,13 +80,36 @@ int nextPrime(int N)
     return prime;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
-		ACO *ANTS = new ACO (NUMBEROFANTS, NUMBEROFCITIES, 
-							ALPHA, BETA, Q, RO, TAUMAX,
-							INITIALCITY);
+		int my_rank, nproc;
 
-		ANTS -> init();
+    MPI_Init(&argc, &argv);
+    MPI_Comm comm = MPI_COMM_WORLD;
+    MPI_Comm_size(comm, &nproc);
+    MPI_Comm_rank(comm, &my_rank);
+
+	ACO *ANTS = new ACO(nproc, NUMBEROFCITIES, 
+		ALPHA, BETA, Q, RO, TAUMAX,
+		INITIALCITY);
+	ANTS -> init();
+
+	double** local_PHEROMONES = (double**)malloc(sizeof(double*)*NUMBEROFCITIES);
+	for(int i = 0; i < NUMBEROFCITIES; i++) {
+		local_PHEROMONES[i] = (double*)malloc(sizeof(double)*NUMBEROFCITIES);
+	}
+
+	double** local_CITIES = (double**)malloc(sizeof(double*)*NUMBEROFCITIES);
+	for(int i = 0; i < NUMBEROFCITIES; i++) {
+		local_CITIES[i] = (double*)malloc(sizeof(double)*NUMBEROFCITIES);
+	}
+
+	int** local_GRAPH = (int**)malloc(sizeof(int*)*NUMBEROFCITIES);
+	for(int i = 0; i < NUMBEROFCITIES; i++) {
+		local_GRAPH[i] = (int*)malloc(sizeof(int)*NUMBEROFCITIES);
+	}
+
+	if(my_rank == 0){
 		
 		cout<<"initialize connections" << endl;
 
@@ -107,17 +128,34 @@ int main() {
 			int x, y = i+1;
 			x = (i%10)*5;
 			y = (i%10) + i;
-			ANTS -> setCITYPOSITION (i,  x,  y);
+			ANTS -> setCITYPOSITION(i, x,y);
 		}
-
-	cout<<"start calculations" << endl;
+		local_PHEROMONES = ANTS->getPHEROMONES();
+		local_CITIES = ANTS->getCITIES();
+		local_GRAPH = ANTS->getGRAPH();
+	}
 	
 	// ANTS -> setCITYPOSITION(8, 26, 20);
 	auto start = std::chrono::high_resolution_clock::now();//add start time
 
 	//ANTS -> printGRAPH ();
+	MPI_Bcast(local_PHEROMONES, NUMBEROFCITIES*NUMBEROFCITIES, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	MPI_Bcast(local_CITIES, NUMBEROFCITIES*NUMBEROFCITIES, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	MPI_Bcast(local_GRAPH, NUMBEROFCITIES*NUMBEROFCITIES, MPI_INT, 0, MPI_COMM_WORLD);
+
+	if(my_rank != 0){
+		ANTS->setPHEROMONES(local_PHEROMONES);
+		ANTS->setCITIES(local_CITIES);
+		ANTS->setGRAPH(local_GRAPH);
+	}	
+	// ANTS -> setCITYPOSITION(8, 26, 20);
+
+	//ANTS -> printGRAPH ();
 
 	//ANTS -> printPHEROMONES ();
+	double x = 0.0;
+	double y;
+	MPI_Allreduce(&x, &y, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
 	ANTS -> optimize (ITERATIONS);
 
