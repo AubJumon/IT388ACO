@@ -184,7 +184,9 @@ int ACO::city () {
 }
 
 void ACO::route (int antk) {
+						cout << antk << ": route" << endl;
 	ROUTES[antk][0] = INITIALCITY;
+							cout << antk << ": city" << endl;
 	for (int i=0; i<NUMBEROFCITIES-1; i++) {		
 		int cityi = ROUTES[antk][i];
 		int count = 0;
@@ -296,17 +298,12 @@ void ACO::updatePHEROMONES (int* Global_ROUTES) {
 }
 
 
-void ACO::optimize (int ITERATIONS) {
-	int k, nproc;
-
-    MPI_Comm comm = MPI_COMM_WORLD;
-    MPI_Comm_size(comm, &nproc);
-    MPI_Comm_rank(comm, &k);
-	int* global_ROUTES = (int*)malloc(NUMBEROFANTS*NUMBEROFCITIES * sizeof(int));
-
-	for (int iterations=1; iterations<=ITERATIONS; iterations++) {
-		//cout << k << "optimize" <<endl;
-		//cout << "ITERATION " << iterations << " HAS STARTED!" << endl << endl;
+double ACO::optimize (int k, int iterations) {
+	MPI_Bcast(&PHEROMONES, NUMBEROFCITIES*NUMBEROFCITIES, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	for (int j = 0; j < NUMBEROFCITIES; j++)
+			{
+				ROUTES[k][j] = -1;
+			}
 
 			//cout << " : ant " << k << " has been released!" << endl;
 			while (0 != valid(k, iterations))
@@ -317,6 +314,7 @@ void ACO::optimize (int ITERATIONS) {
 					ROUTES[k][i] = -1;
 				}
 				route(k);
+				cout << k << ": routed" << endl;
 			}
 
 			// for (int i = 0; i < NUMBEROFCITIES; i++)
@@ -326,54 +324,19 @@ void ACO::optimize (int ITERATIONS) {
 			//cout << endl;
 
 			//cout << "  :: route done" << endl;
-				double global_min = 0.0;
-				double rlength = length(k);
-				cout << rlength << endl;
-				cout << global_min << endl;
-			MPI_Allreduce(&rlength, &global_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-				cout << " : ant " << k << " reduce" << endl;
-			//MPI_Bcast(&global_min, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-			// 	cout << " : ant " << k << " BCAST" << endl;
-			BESTLENGTH = global_min;
-			for (int i=0; i<NUMBEROFCITIES; i++) {
-				int best = 0.0;
-				MPI_Reduce(&ROUTES[k][i], &best, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
-				BESTROUTE[i] = best;
-			}
-			
-			//cout << " : ant " << k << " has ended!" << endl;
-			cout << "gather" << endl;
-		MPI_Gather(&ROUTES[k][0], NUMBEROFCITIES, MPI_INT, global_ROUTES, NUMBEROFCITIES, MPI_INT, 0, MPI_COMM_WORLD);
-		cout << "gather " << endl;
-		// cout << endl
-		// 	 << "updating PHEROMONES . . .";
-		if(k == 0){
-			updatePHEROMONES(global_ROUTES);
-		}
-		MPI_Bcast(&PHEROMONES, NUMBEROFCITIES*NUMBEROFCITIES, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-		// cout << " done!" << endl
-		// 	 << endl;
-		// printPHEROMONES();
-
-		for (int j = 0; j < NUMBEROFCITIES; j++)
-		{
-			ROUTES[k][j] = -1;
-		}
-
-		cout << endl << "ITERATION " << iterations << " HAS ENDED!" << endl << endl;
-	}
+		return length(k);
 }
 
 void ACO::setPHEROMONES(double **P){
-	PHEROMONES = P;
+	ACO::PHEROMONES = P;
 }
 
 double** ACO::getPHEROMONES(){
-	return PHEROMONES;
+	return ACO::PHEROMONES;
 }
 
 void ACO::setDELTAPHEROMONES(double **P){
-	DELTAPHEROMONES = P;
+	ACO::DELTAPHEROMONES = P;
 }
 
 double** ACO::getDELTAPHEROMONES(){
@@ -381,17 +344,33 @@ double** ACO::getDELTAPHEROMONES(){
 }
 
 void ACO::setCITIES(double **C){
-	CITIES = C;
+	ACO::CITIES = C;
 }
 
 double** ACO::getCITIES(){
-	return CITIES;
+	return ACO::CITIES;
 }
 
 void ACO::setGRAPH(int **G){
-	GRAPH = G;
+	ACO::GRAPH = G;
 }
 
 int** ACO::getGRAPH(){
-	return GRAPH;
+	return ACO::GRAPH;
+}
+
+void ACO::setROUTES(int **G){
+	ACO::ROUTES = G;
+}
+
+int** ACO::getROUTES(){
+	return ACO::ROUTES;
+}
+
+void ACO::setBESTROUTE(int* R){
+	ACO::BESTROUTE = R;
+}
+
+void ACO::setBESTLENGTH(double b){
+	ACO::BESTLENGTH=b;
 }

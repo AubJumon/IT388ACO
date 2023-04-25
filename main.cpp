@@ -94,20 +94,11 @@ int main(int argc, char *argv[]) {
 		INITIALCITY);
 	ANTS -> init();
 
-	double** local_PHEROMONES = (double**)malloc(sizeof(double*)*NUMBEROFCITIES);
-	for(int i = 0; i < NUMBEROFCITIES; i++) {
-		local_PHEROMONES[i] = (double*)malloc(sizeof(double)*NUMBEROFCITIES);
-	}
+	double** local_PHEROMONES = ANTS->getPHEROMONES();
 
-	double** local_CITIES = (double**)malloc(sizeof(double*)*NUMBEROFCITIES);
-	for(int i = 0; i < NUMBEROFCITIES; i++) {
-		local_CITIES[i] = (double*)malloc(sizeof(double)*NUMBEROFCITIES);
-	}
+	double** local_CITIES = ANTS->getCITIES();
 
-	int** local_GRAPH = (int**)malloc(sizeof(int*)*NUMBEROFCITIES);
-	for(int i = 0; i < NUMBEROFCITIES; i++) {
-		local_GRAPH[i] = (int*)malloc(sizeof(int)*NUMBEROFCITIES);
-	}
+	int** local_GRAPH = ANTS->getGRAPH();
 
 	if(my_rank == 0){
 		
@@ -139,6 +130,7 @@ int main(int argc, char *argv[]) {
 	auto start = std::chrono::high_resolution_clock::now();//add start time
 
 	//ANTS -> printGRAPH ();
+	MPI_Barrier(comm);
 	MPI_Bcast(local_PHEROMONES, NUMBEROFCITIES*NUMBEROFCITIES, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(local_CITIES, NUMBEROFCITIES*NUMBEROFCITIES, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(local_GRAPH, NUMBEROFCITIES*NUMBEROFCITIES, MPI_INT, 0, MPI_COMM_WORLD);
@@ -147,17 +139,65 @@ int main(int argc, char *argv[]) {
 		ANTS->setPHEROMONES(local_PHEROMONES);
 		ANTS->setCITIES(local_CITIES);
 		ANTS->setGRAPH(local_GRAPH);
+		cout << local_PHEROMONES[0][0] << endl;
 	}	
 	// ANTS -> setCITYPOSITION(8, 26, 20);
 
 	//ANTS -> printGRAPH ();
 
 	//ANTS -> printPHEROMONES ();
-	double x = 0.0;
-	double y;
-	MPI_Allreduce(&x, &y, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
-	ANTS -> optimize (ITERATIONS);
+	//ANTS -> optimize (ITERATIONS);
+
+	int* global_ROUTES = (int*)malloc(NUMBEROFANTS*NUMBEROFCITIES * sizeof(int));
+
+	for (int iterations=1; iterations<=ITERATIONS; iterations++) {
+		//cout << my_rank << "optimize" <<endl;
+		//cout << "ITERATION " << iterations << " HAS STARTED!" << endl << endl;
+			//double x = ANTS->optimize(my_rank, ITERATIONS);
+			double rlength =  ANTS->optimize(my_rank, iterations);
+				double y;
+				cout << rlength << endl;
+				//cout << y << endl;
+			MPI_Reduce(&rlength, &y, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+				cout << " : ant  reduce" << endl;
+			//MPI_Bcast(&global_min, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+			// 	cout << " : ant " << my_rank << " BCAST" << endl;
+			ANTS->setBESTLENGTH(y);
+			int *BESTROUTE = (int*)malloc(NUMBEROFCITIES*sizeof(int));
+			for (int i=0; i<NUMBEROFCITIES; i++) {
+				int best;
+				int temp = (ANTS->getROUTES())[my_rank][i];
+				MPI_Reduce(&temp, &BESTROUTE[i], 1, MPI_INT, MPI_MIN, 0, comm);
+			}
+			ANTS->setBESTROUTE(BESTROUTE);
+			
+			//cout << " : ant " << my_rank << " has ended!" << endl;
+		MPI_Gather(&(ANTS->getROUTES())[my_rank][0], NUMBEROFCITIES, MPI_INT, global_ROUTES, NUMBEROFCITIES, MPI_INT, 0, MPI_COMM_WORLD);
+		cout << "gather " << endl;
+		// cout << endl
+		// 	 << "updating PHEROMONES . . .";
+		if(my_rank == 0){
+			ANTS->updatePHEROMONES(global_ROUTES);
+		}
+		// cout << " done!" << endl
+		// 	 << endl;
+		// printPHEROMONES();
+
+		cout << endl << "ITERATION " << iterations << " HAS ENDED!" << endl << endl;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 		auto end = std::chrono::high_resolution_clock::now(); //end timer
 
