@@ -29,9 +29,9 @@ public:
 	void setCITIES(double **P);
 	double** getCITIES();
 
-	void setGRAPH(int **P);
+	void setGRAPH(int **G);
 	int** getGRAPH();
-	void setROUTES(int **P);
+	void setROUTES(int **R);
 	int** getROUTES();
 	void setBESTLENGTH(double b);
 	void setBESTROUTE(int* R);

@@ -184,9 +184,7 @@ int ACO::city () {
 }
 
 void ACO::route (int antk) {
-						cout << antk << ": route" << endl;
 	ROUTES[antk][0] = INITIALCITY;
-							cout << antk << ": city" << endl;
 	for (int i=0; i<NUMBEROFCITIES-1; i++) {		
 		int cityi = ROUTES[antk][i];
 		int count = 0;
@@ -194,8 +192,16 @@ void ACO::route (int antk) {
 			if (cityi == c) {
 				continue;	
 			}
+			if(antk!=0){
+			cout << antk << " : " << GRAPH[0][0] << endl;}
 			if (exists (cityi, c)) {
+				if(c == 0 && i == 0){
+					cout<< antk << "exists" << endl;
+				}
 				if (!vizited (antk, c)) {
+					if(c == 0 && i == 0){
+					cout<< antk << "no visit" << endl;
+				}
 					PROBS[count][0] = PHI (cityi, c, antk);
 					PROBS[count][1] = (double) c;
 					count++;
@@ -317,13 +323,6 @@ double ACO::optimize (int k, int iterations) {
 				cout << k << ": routed" << endl;
 			}
 
-			// for (int i = 0; i < NUMBEROFCITIES; i++)
-			// {
-			// 	cout << ROUTES[k][i] << " ";
-			// }
-			//cout << endl;
-
-			//cout << "  :: route done" << endl;
 		return length(k);
 }
 
@@ -352,15 +351,15 @@ double** ACO::getCITIES(){
 }
 
 void ACO::setGRAPH(int **G){
-	ACO::GRAPH = G;
+	GRAPH = G;
 }
 
 int** ACO::getGRAPH(){
 	return ACO::GRAPH;
 }
 
-void ACO::setROUTES(int **G){
-	ACO::ROUTES = G;
+void ACO::setROUTES(int **R){
+	ACO::ROUTES = R;
 }
 
 int** ACO::getROUTES(){
