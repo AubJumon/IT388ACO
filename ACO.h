@@ -17,7 +17,7 @@ public:
 	void printGRAPH ();
 	void printRESULTS ();
 	
-	double optimize (int k, int iterations);
+	void optimize (int k, int ITERATIONS);
 	double length (int antk);
 
 	void setPHEROMONES(double **P);
@@ -36,7 +36,7 @@ public:
 	void setBESTLENGTH(double b);
 	void setBESTROUTE(int* R);
 
-	void updatePHEROMONES (int* global_ROUTES);
+	void updatePHEROMONES ();
 
 private:
 	double distance (int cityi, int cityj);
