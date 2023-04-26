@@ -20,30 +20,12 @@ public:
 	void optimize (int k, int ITERATIONS);
 	double length (int antk);
 
-	void setPHEROMONES(double **P);
-	double** getPHEROMONES();
-
-	void setDELTAPHEROMONES(double **P);
-	double** getDELTAPHEROMONES();
-
-	void setCITIES(double **P);
-	double** getCITIES();
-
-	void setGRAPH(int **G);
-	int** getGRAPH();
-	void setROUTES(int **R);
-	int** getROUTES();
-	void setBESTLENGTH(double b);
-	void setBESTROUTE(int* R);
-
-	void updatePHEROMONES ();
-
 private:
 	double distance (int cityi, int cityj);
 	bool exists (int cityi, int cityc);
 	bool vizited (int antk, int c);
 	double PHI (int cityi, int cityj, int antk);
-	
+	void updatePHEROMONES ();
 	
 	int city ();
 	void route (int antk);
