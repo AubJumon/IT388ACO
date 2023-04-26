@@ -193,13 +193,7 @@ void ACO::route (int antk) {
 				continue;	
 			}
 			if (exists (cityi, c)) {
-				if(c == 0 && i == 0){
-					cout<< antk << "exists" << endl;
-				}
 				if (!vizited (antk, c)) {
-					if(c == 0 && i == 0){
-					cout<< antk << "no visit" << endl;
-				}
 					PROBS[count][0] = PHI (cityi, c, antk);
 					PROBS[count][1] = (double) c;
 					count++;
@@ -327,8 +321,6 @@ void ACO::optimize (int k, int ITERATIONS) {
 			//cout << "  :: route done" << endl;
 			double rlength = length(k);
 
-			cout << k << ": " << rlength << endl;
-
 			if(rlength > BESTLENGTH){
 				rlength = BESTLENGTH;
 			}
@@ -367,6 +359,8 @@ void ACO::optimize (int k, int ITERATIONS) {
 			}
 		}
 
+		MPI_Barrier(MPI_COMM_WORLD);
+
 		// cout << endl
 		// 	 << "updating PHEROMONES . . .";
 		if(k == 0){
@@ -381,5 +375,6 @@ void ACO::optimize (int k, int ITERATIONS) {
 		{
 			ROUTES[k][j] = -1;
 		}
+		MPI_Barrier(MPI_COMM_WORLD);
 	}
 }

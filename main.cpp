@@ -23,7 +23,6 @@ using std::chrono::high_resolution_clock;
 
 #define ITERATIONS		(int) 5
 
-#define NUMBEROFANTS	(int) 5 //this should be set to the number of threads you want to run with
 #define NUMBEROFCITIES	(int) 100 //originally 8 create larger number to slow down program
 
 // if (ALPHA == 0) { stochastic search & sub-optimal route }
@@ -112,9 +111,9 @@ int main(int argc, char *argv[]) {
 			int x, y = i+1;
 			x = (i%10)*5;
 			y = (i%10) + i;
-			ANTS -> setCITYPOSITION(i, x,y);
+			ANTS -> setCITYPOSITION (i,  x,  y);
 		}
-		// ANTS -> setCITYPOSITION(8, 26, 20);
+
 		cout<<"start calculations" << endl;
 	}
 	//ANTS -> printGRAPH ();
