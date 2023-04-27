@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name="openMP"
+#SBATCH --output="output_coll.%j.%N.txt"
+#SBATCH --partition=compute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --account=isu102
+#SBATCH --export=ALL
+#SBATCH -t 00:10:00
+
+./openMP 1
+./openMP 2
+./openMP 3
+./openMP 4
+./openMP 5

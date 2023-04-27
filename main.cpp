@@ -23,20 +23,20 @@ using std::chrono::high_resolution_clock;
     using std::chrono::duration;
     using std::chrono::milliseconds;
 
-#define ITERATIONS		(int) 5
+#define ITERATIONS		(int) 50
 
 #define NUMBEROFANTS	(int) 4 //this should be set to the number of threads you want to run with
 #define NUMBEROFCITIES	(int) 100 //originally 8 create larger number to slow down program
 
-// if (ALPHA == 0) { stochastic search & sub-optimal route }
-#define ALPHA			(double) 0.5
-// if (BETA  == 0) { sub-optimal route }
-#define BETA			(double) 0.8
-// Estimation of the suspected best route.
+// if (ALPHA == 0) { stochastic search & sub-optimal route } default = 0.5
+#define ALPHA			(double) 1.8
+// if (BETA  == 0) { sub-optimal route } default = 0.8
+#define BETA			(double) 2.0
+// Estimation of the suspected best route. default = 80
 #define Q				(double) 80
-// Pheromones evaporation. 
+// Pheromones evaporation. default = 0.2
 #define RO				(double) 0.2
-// Maximum pheromone random number.
+// Maximum pheromone random number. default = 2
 #define TAUMAX			(int) 2
 
 #define INITIALCITY		(int) 0
@@ -85,7 +85,7 @@ int nextPrime(int N)
 int main(int argc,char** argv) {
 
 	int nThreads = strtol(argv[1],NULL,10);
-	
+	cout<<nThreads<<endl;
 
 	ACO *ANTS = new ACO (NUMBEROFANTS, NUMBEROFCITIES, 
 							ALPHA, BETA, Q, RO, TAUMAX,
@@ -93,7 +93,7 @@ int main(int argc,char** argv) {
 
 	ANTS -> init();
 		
-	cout<<"initialize connections" << endl;
+	//cout<<"initialize connections" << endl;
 
 	//"randomize" connections of cities, give a seemingly random connection of cities using prime numbers
 	for(int i = 0; i < NUMBEROFCITIES - 1; i ++){
@@ -103,7 +103,7 @@ int main(int argc,char** argv) {
 			}
 		}
 	}
-	cout<<"initialize cities" << endl;
+	//cout<<"initialize cities" << endl;
 
 	//create a grid from the cities
 	for(int i = 0; i < NUMBEROFCITIES - 1; i ++){
@@ -113,7 +113,7 @@ int main(int argc,char** argv) {
 		ANTS -> setCITYPOSITION (i,  x,  y);
 	}
 
-	cout<<"start calculations" << endl;
+	//cout<<"start calculations" << endl;
 	
 	//ANTS -> setCITYPOSITION(8, 26, 20);
 	auto start = std::chrono::high_resolution_clock::now();//add start time
@@ -125,6 +125,7 @@ int main(int argc,char** argv) {
 	ANTS -> printRESULTS ();
 	auto time_taken = duration_cast<milliseconds>(end - start);;
 	cout << "Time taken by program is : " << time_taken.count() << " ms " << endl;
-	
+	//ANTS -> printGRAPH();
+	//ANTS -> printPHEROMONES();
 	return 0;
 }

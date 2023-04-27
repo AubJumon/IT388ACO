@@ -152,6 +152,7 @@ double ACO::PHI (int cityi, int cityj, int antk) {
 	double TAUij = (double) pow (PHEROMONES[cityi][cityj],   ALPHA);
 
 	double sum = 0.0;
+	#pragma omp parallel for
 	for (int c=0; c<NUMBEROFCITIES; c++) {
 		if (exists(cityi, c)) {
 			if (!vizited(antk, c)) {
@@ -266,29 +267,34 @@ void ACO::printGRAPH () {
 }
 void ACO::printRESULTS () {
 	BESTLENGTH += distance (BESTROUTE[NUMBEROFCITIES-1], INITIALCITY);
-	cout << " BEST ROUTE:" << endl;
-	for (int i=0; i<NUMBEROFCITIES; i++) {
-		cout << BESTROUTE[i] << " ";
-	}
+	//cout << " BEST ROUTE:" << endl;
+	//for (int i=0; i<NUMBEROFCITIES; i++) {
+	//	cout << BESTROUTE[i] << " ";
+	//}
 	cout << endl << "length: " << BESTLENGTH << endl;
 	
-	cout << endl << " IDEAL ROUTE:" << endl;
-	cout << "0 99 21 91 47 49 39 59 58 23 25 84 64 14 6 85 26 76 68 62 67 37 86 94 83 38 48 41 33 36 45 35 13 22 9 2 27 71 78 79 75 44 31 30 40 72 81 93 54 16 10 92 87 74 29 34 70 51 63 43 46 20 32 57 52 77 56 66 55 80 7 19 17 8 28 18 24 12 1 3 11 90 96 42 50 61 5 65 97 95 88 73 82 69 53 4 15 98 89 60" << endl;
-	cout << "length: 2927.38" << endl;
+	//cout << endl << " IDEAL ROUTE:" << endl;
+	//cout << "0 99 21 91 47 49 39 59 58 23 25 84 64 14 6 85 26 76 68 62 67 37 86 94 83 38 48 41 33 36 45 35 13 22 9 2 27 71 78 79 75 44 31 30 40 72 81 93 54 16 10 92 87 74 29 34 70 51 63 43 46 20 32 57 52 77 56 66 55 80 7 19 17 8 28 18 24 12 1 3 11 90 96 42 50 61 5 65 97 95 88 73 82 69 53 4 15 98 89 60" << endl;
+	//cout << "length: 2927.38" << endl;
 }
 
 void ACO::updatePHEROMONES () {
+	int r;
+	#pragma omp parallel for private(r)
 	for (int k=0; k<NUMBEROFANTS; k++) {
 		double rlength = length(k);
-		for (int r=0; r<NUMBEROFCITIES-1; r++) {
+		for (r=0; r<NUMBEROFCITIES-1; r++) {
 			int cityi = ROUTES[k][r];
 			int cityj = ROUTES[k][r+1];
 			DELTAPHEROMONES[cityi][cityj] += Q / rlength;
 			DELTAPHEROMONES[cityj][cityi] += Q / rlength;
 		}
 	}
-	for (int i=0; i<NUMBEROFCITIES; i++) {
-		for (int j=0; j<NUMBEROFCITIES; j++) {
+	int i;
+	#pragma omp parallel for private(i)
+	for (int j=0; j<NUMBEROFCITIES; j++) {
+
+		for (i=0; i<NUMBEROFCITIES; i++) {
 			PHEROMONES[i][j] = (1 - RO) * PHEROMONES[i][j] + DELTAPHEROMONES[i][j];
 			DELTAPHEROMONES[i][j] = 0.0;
 		}	
@@ -301,23 +307,24 @@ void ACO::optimize (int ITERATIONS,int nThreads) {
 	
 	for (int iterations=1; iterations<=ITERATIONS; iterations++) {
 		//cout << flush;
-		cout << "ITERATION " << iterations << " HAS STARTED!" << endl << endl;
-		
+		//cout << "ITERATION " << iterations << " HAS STARTED!" << endl << endl;
+		//#pragma omp parallel
 		for (int k = 0; k < NUMBEROFANTS; k++)
 		{
 			//cout << " : ant " << k << " has been released!" << endl;
+			//#pragma omp parallel
 			while (0 != valid(k, iterations))
 			{
 				//cout << "  :: releasing ant " << k << " again!" << endl;
 				#pragma omp parallel for
 				for (int i = 0; i < NUMBEROFCITIES; i++)
 				{
-					#pragma omp critical
+					//#pragma omp critical
 					ROUTES[k][i] = -1;
 				}
+				//#pragma omp single
 				route(k);
 			}
-
 			// for (int i = 0; i < NUMBEROFCITIES; i++)
 			// {
 			// 	cout << ROUTES[k][i] << " ";
@@ -329,7 +336,7 @@ void ACO::optimize (int ITERATIONS,int nThreads) {
 
 			if (rlength < BESTLENGTH)
 			{
-				//#pragma omp critical
+				
 				BESTLENGTH = rlength;
 				#pragma omp parallel for
 				for (int i = 0; i < NUMBEROFCITIES; i++)
@@ -342,20 +349,21 @@ void ACO::optimize (int ITERATIONS,int nThreads) {
 		}
 
 		// cout << endl
-		// 	 << "updating PHEROMONES . . .";
+		 	// << "updating PHEROMONES . . .";
 		updatePHEROMONES();
-		// cout << " done!" << endl
+		// cout << " done!" << endl;
 		// 	 << endl;
 		// printPHEROMONES();
-
+		int j;
+		#pragma omp parallel for private(j)
 		for (int i = 0; i < NUMBEROFANTS; i++)
 		{
-			for (int j = 0; j < NUMBEROFCITIES; j++)
+			for (j = 0; j < NUMBEROFCITIES; j++)
 			{
 				ROUTES[i][j] = -1;
 			}
 		}
 		
-		cout << endl << "ITERATION " << iterations << " HAS ENDED!" << endl << endl;
+		//cout << endl << "ITERATION " << iterations << " HAS ENDED!" << endl << endl;
 	}
 }
