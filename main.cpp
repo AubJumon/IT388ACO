@@ -116,12 +116,8 @@ int main(int argc, char *argv[]) {
 
 		cout<<"start calculations" << endl;
 	}
-	//ANTS -> printGRAPH ();
+	
 	auto start = std::chrono::high_resolution_clock::now();//add start time
-
-	//ANTS -> printGRAPH ();
-
-	//ANTS -> printPHEROMONES ();
 
 	ANTS -> optimize (my_rank, ITERATIONS);
 

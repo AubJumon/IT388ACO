@@ -302,15 +302,10 @@ void ACO::optimize (int k, int ITERATIONS) {
 		MPI_Bcast(CITIES[c], NUMBEROFCITIES, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 		MPI_Bcast(GRAPH[c], NUMBEROFCITIES, MPI_INT, 0, MPI_COMM_WORLD);
 	}
+	
 	for (int iterations=1; iterations<=ITERATIONS; iterations++) {
-		//cout << flush;
-		//cout << "ITERATION " << iterations << " HAS STARTED!" << endl << endl;
-
-		
-			//cout << " : ant " << k << " has been released!" << endl;
 			while (0 != valid(k, iterations))
 			{
-			//	cout << "  :: releasing ant " << k << " again!" << endl;
 				for (int i = 0; i < NUMBEROFCITIES; i++)
 				{
 					ROUTES[k][i] = -1;
@@ -318,21 +313,13 @@ void ACO::optimize (int k, int ITERATIONS) {
 				route(k);
 			}
 
-			//cout << "  :: route done" << endl;
-			double rlength = length(k);
-
-			if(rlength > BESTLENGTH){
-				rlength = BESTLENGTH;
-			}
-
 			struct double_int {
 				double val;
 				int rank;
 			} min_loc, local_min;
 
-			local_min.val = rlength;
+			local_min.val = length(k);
 			local_min.rank = k;
-
 			MPI_Allreduce(&local_min, &min_loc, 1, MPI_DOUBLE_INT, MPI_MINLOC, MPI_COMM_WORLD );
 
 			if(min_loc.val < BESTLENGTH){
@@ -344,12 +331,13 @@ void ACO::optimize (int k, int ITERATIONS) {
 						MPI_Send(ROUTES[k],  NUMBEROFCITIES, MPI_INT, 0, 0, MPI_COMM_WORLD );
 					}
 				}else{
-					for (int z = 0; z < NUMBEROFCITIES; z++)
+					for (int i = 0; i < NUMBEROFCITIES; i++)
 					{
-						BESTROUTE[z] = ROUTES[k][z];
+						BESTROUTE[i] = ROUTES[k][i];
 					}
 				}
 			}
+			
 
 		for(int c = 1; c < NUMBEROFANTS; c++){
 			if(k == 0){
@@ -358,8 +346,7 @@ void ACO::optimize (int k, int ITERATIONS) {
 				MPI_Send(ROUTES[c],  NUMBEROFCITIES, MPI_INT, 0, 0, MPI_COMM_WORLD );
 			}
 		}
-
-		MPI_Barrier(MPI_COMM_WORLD);
+		
 
 		// cout << endl
 		// 	 << "updating PHEROMONES . . .";
@@ -370,11 +357,12 @@ void ACO::optimize (int k, int ITERATIONS) {
 		for(int c = 0; c < NUMBEROFCITIES; c++){
 			MPI_Bcast(PHEROMONES[c], NUMBEROFCITIES, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 		}
-
+		
 		for (int j = 0; j < NUMBEROFCITIES; j++)
 		{
 			ROUTES[k][j] = -1;
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
+		
 	}
 }
