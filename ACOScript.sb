@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name="aco"
+#SBATCH --output="output_coll.%j.%N.txt"
+#SBATCH --partition=compute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --account=isu102
+#SBATCH --export=ALL
+#SBATCH -t 00:10:00
+
+srun -n 1 ./aco
+srun -n 2 ./aco
+srun -n 3 ./aco
+srun -n 4 ./aco
+srun -n 5 ./aco
