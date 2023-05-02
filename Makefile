@@ -1,4 +1,4 @@
-CC = mpic++
+CC = mpicxx
 CFLAGS = -Wall -O3
 OBJS = ACO.o main.o Randoms.o
 TARGET = aco
