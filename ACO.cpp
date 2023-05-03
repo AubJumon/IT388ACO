@@ -304,9 +304,7 @@ void ACO::updatePHEROMONES () {
 
 void ACO::optimize (int ITERATIONS,int nThreads) {
 	omp_set_num_threads(nThreads);
-	
 	for (int iterations=1; iterations<=ITERATIONS; iterations++) {
-		//cout << flush;
 		//cout << "ITERATION " << iterations << " HAS STARTED!" << endl << endl;
 		//#pragma omp parallel
 		for (int k = 0; k < NUMBEROFANTS; k++)
@@ -315,28 +313,18 @@ void ACO::optimize (int ITERATIONS,int nThreads) {
 			//#pragma omp parallel
 			while (0 != valid(k, iterations))
 			{
-				//cout << "  :: releasing ant " << k << " again!" << endl;
 				#pragma omp parallel for
 				for (int i = 0; i < NUMBEROFCITIES; i++)
 				{
-					//#pragma omp critical
 					ROUTES[k][i] = -1;
 				}
-				//#pragma omp single
 				route(k);
 			}
-			// for (int i = 0; i < NUMBEROFCITIES; i++)
-			// {
-			// 	cout << ROUTES[k][i] << " ";
-			// }
-			//cout << endl;
-
 			//cout << "  :: route done" << endl;
 			double rlength = length(k);
 
 			if (rlength < BESTLENGTH)
 			{
-				
 				BESTLENGTH = rlength;
 				#pragma omp parallel for
 				for (int i = 0; i < NUMBEROFCITIES; i++)
@@ -347,13 +335,7 @@ void ACO::optimize (int ITERATIONS,int nThreads) {
 			}
 			//cout << " : ant " << k << " has ended!" << endl;
 		}
-
-		// cout << endl
-		 	// << "updating PHEROMONES . . .";
 		updatePHEROMONES();
-		// cout << " done!" << endl;
-		// 	 << endl;
-		// printPHEROMONES();
 		int j;
 		#pragma omp parallel for private(j)
 		for (int i = 0; i < NUMBEROFANTS; i++)
@@ -363,7 +345,6 @@ void ACO::optimize (int ITERATIONS,int nThreads) {
 				ROUTES[i][j] = -1;
 			}
 		}
-		
 		//cout << endl << "ITERATION " << iterations << " HAS ENDED!" << endl << endl;
 	}
 }

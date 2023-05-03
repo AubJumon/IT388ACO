@@ -1,0 +1,21 @@
+ACO openMP version
+By: Aidan Williamson
+
+To run with the make file:
+    1. Type 'make' into terminal to compile
+    2. Type 'make run' to run with preset settings
+
+To change thread number:
+    1. The bottom line in make file has a default value of 10 threads
+    2. Change this value to adjust the number of threads to run with
+
+
+To run on expanse:
+    1. Login to expanse and upload ACO.cpp, ACO.h, Randoms.cpp, main.cpp, and ACOScript.sb
+    2. Load modules - intel mvapich2
+    3. Compile with     $icpc -qopenmp -o openMP ACO.cpp Randoms.cpp main.cpp
+    4. Run with         $sbatch ACOScript.sb
+
+To change thread number:
+    1. To change thread number open script file and change default values (1,2,3,4,5)
+
