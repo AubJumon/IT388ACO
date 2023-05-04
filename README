@@ -1,0 +1,11 @@
+ACO MPI version
+By: Aubrey Jumonville
+
+To run with the make file:
+    1. Type 'make' into terminal to compile
+    2. Type mpirun -np <number of ants> ./aco to run
+
+
+To run on expanse:
+    1. Don't
+      (as discussed in class we were unable to run on expanse though we do have a script file prepared).
